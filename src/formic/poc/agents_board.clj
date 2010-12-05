@@ -4,8 +4,8 @@
            (java.awt.event MouseListener MouseMotionListener)
            (javax.swing JFrame JPanel)))
 
-(def len-x 5)
-(def len-y 5)
+(def len-x 10)
+(def len-y 10)
 
 (def num-agents 5)
 (def remaining-agents (atom num-agents))
@@ -42,9 +42,10 @@
   (let [new-x (mod ((rand-dir) (:x state)) len-x)
         new-y (mod ((rand-dir) (:y state)) len-y)
         next-cell (at-loc new-x new-y)]
-    (println *agent*)
     (letfn [(move-into [cell]
-              (when (and cell (not= (:id @cell) (:id state)))
+              (when (and cell
+                         (not= (:id @cell) (:id state))
+                         (:alive @cell))
                 (kill cell)
                 (println "There can only be one!" \newline
                          (:id state) " killed " (:id @cell)
@@ -111,8 +112,7 @@
           (restart-agent agt (assoc @agt :alive false) :clear-actions true))))
     (Thread/sleep 500))
   (println "Victory to "
-           (:id (first (filter :alive (map deref @agents)))) "!")
-  (stop-ants))
+           (:id (first (filter :alive (map deref @agents)))) "!"))
 
 ;; Running utilities
 
@@ -164,10 +164,15 @@
     (.setColor Color/RED)
     (.fillRect 0 0 (* scale (+ 2 w)) (* scale (+ 2 h))))
   (do-board [w h]
-    (if (deref (at-loc i j))
-        (.setColor g Color/WHITE)
-        (.setColor g Color/BLACK))
+    (if-let [agt (deref (at-loc i j))]
+      (do
+        (if (:alive @agt)
+          (.setColor g Color/WHITE)
+          (.setColor g Color/GRAY))
+        (.drawString g (str (:id @agt)) (* (inc i) scale) (* (inc j) scale)))
+      (.setColor g Color/BLACK))
     (.fillRect g (* (inc i) scale) (* (inc j) scale) scale scale)))
+
 
 (defworker render [panel fps]
   (.repaint panel)
@@ -190,8 +195,8 @@
                            (mousePressed    [e] nil)
                            (mouseClicked [e]
                             (.repaint panel))))
+      (.setSize (* scale (+ 2 w)) (* scale (+ h 2)))
       (.add panel)
-      (.setSize (* scale w) (* scale h))
       .pack
       .show
       (.setVisible true))
