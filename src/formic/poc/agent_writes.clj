@@ -1,4 +1,4 @@
-(ns formic.testing
+(ns formic.poc.agent-writes
   (:require
     [clojure.java.io :as io])
   (:import (java.io BufferedWriter FileWriter)))
@@ -16,17 +16,13 @@
             (assoc state :numwrites (inc (:numwrites state))))]
       (send wtr write)))
 
-(def num-agents 10)
-(def num-writes 50)
-
+(def num-agents 3)
+(def num-writes 5)
 
 (defn start-this-mother-up []
-  (let [agents (vec (map #(agent (-> {} (assoc :id %) (assoc :numwrites 0)))
-                   (range num-agents)))]
-    (dotimes [i num-writes]
-      (let [idx (rand-int num-agents)
-            agt (agents idx)]
-        (println (str i "th run"))
-        (log agt)))
-    ))
-
+  (let [agents (map #(agent (-> {} (assoc :id %) (assoc :numwrites 0)))
+                   (range num-agents))]
+    (letfn [(agent-write [agt]
+              (dotimes [_ num-writes]
+                (log agt)))]
+      (pmap agent-write agents))))
