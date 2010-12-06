@@ -7,7 +7,7 @@
 (def len-x 10)
 (def len-y 10)
 
-(def num-agents 5)
+(def num-agents 6)
 (def remaining-agents (atom num-agents))
 (def agents (atom []))
 
@@ -28,7 +28,7 @@
 
 (defn agent-die [state]
   (println (:id state) ": Alas!  I am slain!" \newline
-      (swap! remaining-agents dec) " agents remaining")
+      (swap! remaining-agents dec) "agents remaining")
   (assoc state :alive false))
 
 (defn kill [agt]
@@ -48,14 +48,14 @@
                          (:alive @cell))
                 (kill cell)
                 (println "There can only be one!" \newline
-                         (:id state) " killed " (:id @cell)
-                         " at " new-x " " new-y))
+                         (:id state) "killed" (:id @cell)
+                         "at" new-x new-y))
                *agent*)]
     (when (:alive state)
       (dosync
         (ref-set (at-loc (:x state) (:y state)) nil)
         (alter next-cell move-into))
-      (println (str (:id state) " moving to " new-x " " new-y))
+      (println (str (:id state) "moving to" new-x new-y))
       (assoc state :x new-x :y new-y)))))
 
 (defn create-agent [id x y]
@@ -107,11 +107,11 @@
     (doall
       (for [agt @agents]
         (when-let [err (agent-error agt)]
-          (println "Error in " (:id @agt))
+          (println "Error in" (:id @agt))
           (.printStackTrace err)
           (restart-agent agt (assoc @agt :alive false) :clear-actions true))))
     (Thread/sleep 500))
-  (println "Victory to "
+  (println "Victory to"
            (:id (first (filter :alive (map deref @agents)))) "!"))
 
 ;; Running utilities
