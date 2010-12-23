@@ -11,3 +11,13 @@
          (int (:a (object-to-map
                (execute-code "function performAction() { return {'a': 1, 'b': 2}; }"
                              )))))))
+
+(deftest call-clojure-from-js
+  (letfn [(cljSquare [x] (* x x))]
+    (is (= 25
+           (execute-code
+             (str "function performAction() {"
+                    "return this.cljSquare(5);"
+                  "}")
+             [#'cljSquare])))))
+
