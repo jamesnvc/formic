@@ -130,7 +130,7 @@
       (catch Exception e#
         (-> e# .getMessage println))))))
 
-;; Curses stuff
+;; pseudo-Curses stuff
 
 (defworker print-board []
   (loop [y 0]
