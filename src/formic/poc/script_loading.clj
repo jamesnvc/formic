@@ -1,6 +1,7 @@
 (ns formic.poc.script-loading
   (:import (org.mozilla.javascript Context ScriptableObject
-                                   NativeObject Function)))
+                                   NativeObject NativeJavaObject
+                                   Function)))
 
 (defn isNativeObject?
   [obj]
@@ -14,6 +15,10 @@
   (into {}
         (map #(vector (keyword %) (process-js-value (.get obj % nil)))
              (.getIds obj))))
+
+(defmethod process-js-value org.mozilla.javascript.NativeJavaObject
+  [#^NativeJavaObject obj]
+  (.unwrap obj))
 
 (defmethod process-js-value :default
   [obj]
