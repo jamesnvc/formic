@@ -21,3 +21,15 @@
              "}")
         [["cljSquare" cljSquare]])))))
 
+(deftest pass-in-object
+  (is
+    (= 5
+       (letfn [(getVals [] {:a 5})]
+         (execute-code (str "function performAction() { "
+                              "var key = this.toKeyword('a');"
+                              "return this.getVals().entryAt(key).nth(1);"
+                            "}")
+                  [["getVals" getVals]
+                   ["toKeyword" keyword]])))))
+
+
